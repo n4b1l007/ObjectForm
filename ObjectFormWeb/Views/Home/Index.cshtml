@@ -1,0 +1,15 @@
+﻿@using ObjectForm
+@using ObjectFormWeb.Models
+
+@model TestModelForm
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+
+
+<div style="margin-top: 50px"></div>
+
+@Html.ObjectForm(typeof(TestModelForm)).Options(o => o.Action("Action"))
+
