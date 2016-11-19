@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ObjectForm.Helper;
 
 namespace ObjectForm
 {
@@ -29,6 +30,11 @@ namespace ObjectForm
 
         public virtual string ToHtmlString()
         {
+            return Generator();
+        }
+
+        public string Generator()
+        {
             var modelForm = new TagBuilder("form");
 
             if (FormOption.Action != string.Empty) modelForm.Attributes.Add("action", FormOption.Action);
@@ -39,35 +45,10 @@ namespace ObjectForm
             var properties = _type.GetProperties();
             foreach (var property in properties)
             {
-                var propertyLabelName = string.Empty;
-                var propertyLabel = new TagBuilder("label");
-                //propertyLabel.Attributes.Add("class", "col-md-6 col-sm-6 col-xs-12 form-group");
-                var labelProperty = property.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DisplayNameAttribute");
-                if (labelProperty != null)
-                {
-                    var labelName = labelProperty.ConstructorArguments.FirstOrDefault();
-                    propertyLabelName = labelName.Value.ToString();
-                    propertyLabel.SetInnerText(propertyLabelName);
-                }
-                else
-                {
-                    propertyLabel.SetInnerText(property.Name);
-                }
+                var formProperty = new FormProperty(_htmlHelper);
 
-                var dataTypeValue = 0;
-                var dataType = property.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DataTypeAttribute");
+                var propertyLabel = formProperty.Label(property);
 
-                if (dataType != null)
-                {
-                    var dataTypeArg = dataType.ConstructorArguments.FirstOrDefault();
-                    dataTypeValue = (int)dataTypeArg.Value;
-                }
-
-
-                var isRequired = property.CustomAttributes.Any(f => f.AttributeType.Name == "RequiredAttribute");
-
-                //var propertyInnerDiv = new TagBuilder("div");
-                //propertyInnerDiv.Attributes.Add("class", "col-md-6 col-sm-6 col-xs-12");
 
                 TagBuilder propertyHtml;
 
@@ -77,93 +58,16 @@ namespace ObjectForm
                 {
                     typeName = "Int32";
                 }
-
                 switch (typeName)
                 {
                     case "String":
                         {
-
-                            if (dataTypeValue == 0)
-                            {
-                                propertyHtml = new TagBuilder("input");
-                                propertyHtml.Attributes.Add("class", "form-control");
-                            }
-                            else
-                            {
-                                switch (dataTypeValue)
-                                {
-                                    case 9:
-                                        {
-                                            propertyHtml = new TagBuilder("textarea");
-                                            propertyHtml.Attributes.Add("class", "form-control");
-                                        }
-                                        break;
-                                    default:
-                                        {
-                                            propertyHtml = new TagBuilder("input");
-                                            propertyHtml.Attributes.Add("class", "form-control");
-                                        }
-                                        break;
-                                }
-                            }
+                            propertyHtml = formProperty.ForString(property);
                             break;
                         }
                     case "Int32":
                         {
-                            var attrHeader = property.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "IsSelectAttribute");
-
-                            var isSelect = attrHeader != null;
-
-                            var propertyString = isSelect ? "select" : "input";
-
-                            propertyHtml = new TagBuilder(propertyString);
-
-
-                            if (isSelect)
-                            {
-                                var viewBag = _htmlHelper.ViewContext.ViewBag;
-                                if (isRequired)
-                                    propertyHtml.Attributes.Add("class", "required");
-
-                                var propertyName = property.Name;
-                                string jsonString = JsonConvert.SerializeObject(viewBag);
-                                var jsonObject = JObject.Parse(jsonString);
-
-                                var propertyJson = jsonObject[propertyName];
-
-
-                                if (propertyJson != null)
-                                {
-                                    var fullList = new StringBuilder();
-                                    var selectLable = propertyLabelName != string.Empty
-                                        ? propertyLabelName
-                                        : propertyName;
-                                    var placeHolderoption = new TagBuilder("option")
-                                    {
-                                        InnerHtml = "Select " + selectLable
-                                    };
-                                    placeHolderoption.Attributes.Add("value", "");
-                                    fullList.AppendLine(placeHolderoption.ToString());
-
-                                    var hh = propertyJson.Children();
-                                    foreach (var v in hh)
-                                    {
-                                        var value = v["Value"];
-                                        var text = v["Text"];
-
-
-                                        var option = new TagBuilder("option") { InnerHtml = text.ToString() };
-                                        option.Attributes.Add("value", value.ToString());
-                                        fullList.AppendLine(option.ToString());
-                                    }
-
-                                    propertyHtml.InnerHtml = fullList.ToString();
-                                }
-                            }
-                            else
-                            {
-                                propertyHtml.Attributes.Add("class", "form-control");
-                            }
+                            propertyHtml = formProperty.ForInt(property);
                             break;
                         }
                     default:
@@ -173,18 +77,15 @@ namespace ObjectForm
                             break;
                         }
                 }
+                var isRequired = property.CustomAttributes.Any(f => f.AttributeType.Name == "RequiredAttribute");
                 if (isRequired)
                 {
                     propertyHtml.Attributes.Add("required", "required");
-                    //propertyHtml.Attributes.Add("data-validetta", "required,minLength[2],maxLength[20]");
                 }
                 //propertyHtml.Attributes.Add("class", "form-control required");
                 propertyHtml.Attributes.Add("type", "text");
                 propertyHtml.Attributes.Add("id", property.Name);
                 propertyHtml.Attributes.Add("name", property.Name);
-                //propertyInnerDiv.InnerHtml = propertyHtml.ToString();
-
-
 
                 modelForm.InnerHtml += propertyLabel + propertyHtml.ToString();
             }

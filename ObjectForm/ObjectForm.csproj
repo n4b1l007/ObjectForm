@@ -76,6 +76,8 @@
     <Compile Include="FormAttribute.cs" />
     <Compile Include="FormOption.cs" />
     <Compile Include="FormOptionBuilder.cs" />
+    <Compile Include="Helper\FormHtml.cs" />
+    <Compile Include="Helper\FormProperty.cs" />
     <Compile Include="ObjectForm.cs" />
     <Compile Include="ObjectFormExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
