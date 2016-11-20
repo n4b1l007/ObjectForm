@@ -10,11 +10,13 @@ namespace ObjectForm.Helper
     public class FormProperty
     {
         private readonly HtmlHelper _htmlHelper;
+        private readonly FormOption _formOption;
         private TagBuilder _propertyHtml;
 
-        public FormProperty(HtmlHelper htmlHelper)
+        public FormProperty(HtmlHelper htmlHelper, FormOption formOption)
         {
             _htmlHelper = htmlHelper;
+            _formOption = formOption;
         }
 
         public TagBuilder Label(PropertyInfo property)
@@ -30,6 +32,12 @@ namespace ObjectForm.Helper
             else
             {
                 propertyLabel.SetInnerText(property.Name);
+            }
+
+
+            if (!string.IsNullOrEmpty(_formOption.LabelClass))
+            {
+                propertyLabel.Attributes.Add("class", _formOption.LabelClass);
             }
             return propertyLabel;
         }
@@ -49,7 +57,6 @@ namespace ObjectForm.Helper
             if (dataTypeValue == 0)
             {
                 _propertyHtml = new TagBuilder("input");
-                _propertyHtml.Attributes.Add("class", "form-control");
             }
             else
             {
@@ -58,13 +65,11 @@ namespace ObjectForm.Helper
                     case 9:
                     {
                         _propertyHtml = new TagBuilder("textarea");
-                        _propertyHtml.Attributes.Add("class", "form-control");
                     }
                         break;
                     default:
                     {
                         _propertyHtml = new TagBuilder("input");
-                        _propertyHtml.Attributes.Add("class", "form-control");
                     }
                         break;
                 }
@@ -101,14 +106,15 @@ namespace ObjectForm.Helper
 
                 if (propertyJson != null)
                 {
+                    var fullList = new StringBuilder();
+
+
                     var labelProperty =
                         intProperty.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DisplayNameAttribute");
                     if (labelProperty != null)
                     {
                         var labelName = labelProperty.ConstructorArguments.FirstOrDefault();
                         var propertyLabelName = labelName.Value.ToString();
-
-                        var fullList = new StringBuilder();
                         var selectLable = propertyLabelName != string.Empty
                             ? propertyLabelName
                             : propertyName;
@@ -118,6 +124,7 @@ namespace ObjectForm.Helper
                         };
                         placeHolderoption.Attributes.Add("value", "");
                         fullList.AppendLine(placeHolderoption.ToString());
+                    }
 
                         var hh = propertyJson.Children();
                         foreach (var v in hh)
@@ -132,12 +139,7 @@ namespace ObjectForm.Helper
                         }
 
                         _propertyHtml.InnerHtml = fullList.ToString();
-                    }
                 }
-            }
-            else
-            {
-                _propertyHtml.Attributes.Add("class", "form-control");
             }
             return _propertyHtml;
         }

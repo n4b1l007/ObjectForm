@@ -151,7 +151,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\testModelForm.cs" />
+    <Compile Include="Models\GenderViewModel.cs" />
+    <Compile Include="Models\TestModelForm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

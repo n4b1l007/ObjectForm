@@ -73,7 +73,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FormAttribute.cs" />
+    <Compile Include="Attribute\FormAttribute.cs" />
+    <Compile Include="Attribute\IsSelectAttribute.cs" />
     <Compile Include="FormOption.cs" />
     <Compile Include="FormOptionBuilder.cs" />
     <Compile Include="Helper\FormHtml.cs" />

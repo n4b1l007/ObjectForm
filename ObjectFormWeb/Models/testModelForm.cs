@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ObjectForm;
+using ObjectForm.Attribute;
 
 namespace ObjectFormWeb.Models
 {
@@ -8,10 +8,11 @@ namespace ObjectFormWeb.Models
     {
         public string Name { get; set; }
 
-        [GridColumn("Age", false)]
+        [GridColumn("Age")]
         public int Age { get; set; }
 
-        [GridColumn("Gender", true)]
+        [IsSelect]
+        [GridColumn("Gender")]
         public int? Gender { get; set; }
 
         public DateTime BirthDate { get; set; }

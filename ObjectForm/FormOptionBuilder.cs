@@ -29,5 +29,17 @@ namespace ObjectForm
             PagerOptions.Action = action;
             return this;
         }
+
+        public FormOptionBuilder ApplyBootstrap()
+        {
+            PagerOptions.IsBootstrap = true;
+            return this;
+        }
+
+        public FormOptionBuilder LabelClass(string className)
+        {
+            PagerOptions.LabelClass = className;
+            return this;
+        }
     }
 }

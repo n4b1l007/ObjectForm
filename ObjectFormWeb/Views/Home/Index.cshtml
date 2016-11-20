@@ -8,8 +8,10 @@
 }
 
 
-
 <div style="margin-top: 50px"></div>
 
-@Html.ObjectForm(typeof(TestModelForm)).Options(o => o.Action("Action"))
+@Html.ObjectForm(typeof(TestModelForm)).Options(o => o
+.Action("Action")
+.LabelClass("col-md-6 col-sm-6 col-xs-12")
+.ApplyBootstrap())
 

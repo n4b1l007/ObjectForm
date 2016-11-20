@@ -7,6 +7,7 @@ namespace ObjectForm
     {
         public static class DefaultDefaults
         {
+            public static bool isBootstrap = false;
             public const string DefaultAction = "/";
             public const string DefaultHtmlId = null;
             public const string DefaultHtmlClass = null;
@@ -19,6 +20,7 @@ namespace ObjectForm
         /// </summary>
         public static class Defaults
         {
+            public static bool IsBootstrap = DefaultDefaults.isBootstrap;
             public static string DefaultAction = DefaultDefaults.DefaultAction;
             public static string AttributeId = DefaultDefaults.DefaultHtmlId;
             public static string AttributeClass = DefaultDefaults.DefaultHtmlClass;
@@ -26,6 +28,7 @@ namespace ObjectForm
 
             public static void Reset()
             {
+                IsBootstrap = DefaultDefaults.isBootstrap;
                 DefaultAction = DefaultDefaults.DefaultAction;
                 AttributeId = DefaultDefaults.DefaultHtmlId;
                 AttributeClass = DefaultDefaults.DefaultHtmlClass;
@@ -33,6 +36,7 @@ namespace ObjectForm
             }
         }
 
+        public bool IsBootstrap { get; set; }
         public string Action { get; set; }
         public string AttributeId { get; set; }
         public string AttributeClass { get; set; }
@@ -42,6 +46,7 @@ namespace ObjectForm
 
         public FormOption()
         {
+            IsBootstrap = false;
             Action = string.Empty;
             AttributeId = string.Empty;
             AttributeClass = string.Empty;
