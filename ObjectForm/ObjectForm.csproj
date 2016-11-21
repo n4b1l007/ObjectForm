@@ -75,12 +75,16 @@
   <ItemGroup>
     <Compile Include="Attribute\FormAttribute.cs" />
     <Compile Include="Attribute\IsSelectAttribute.cs" />
-    <Compile Include="FormOption.cs" />
-    <Compile Include="FormOptionBuilder.cs" />
+    <Compile Include="Options\FormOption.cs" />
+    <Compile Include="Options\FormOptionBuilder.cs" />
     <Compile Include="Helper\FormHtml.cs" />
     <Compile Include="Helper\FormProperty.cs" />
     <Compile Include="ObjectForm.cs" />
     <Compile Include="ObjectFormExtensions.cs" />
+    <Compile Include="Options\LabelOption.cs" />
+    <Compile Include="Options\LabelOptionBuilder.cs" />
+    <Compile Include="Options\PropertyOption.cs" />
+    <Compile Include="Options\PropertyOptionBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

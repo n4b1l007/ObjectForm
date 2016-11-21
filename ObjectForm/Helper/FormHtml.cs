@@ -1,26 +1,32 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Web.Mvc;
+using ObjectForm.Options;
 
 namespace ObjectForm.Helper
 {
     public class FormHtml
     {
         private readonly FormOption _formOption;
+        private readonly LabelOption _labelOption;
         private readonly HtmlHelper _htmlHelper;
+        private readonly PropertyOption _propertyOption;
         private readonly Type _type;
 
-        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper)
+        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption, PropertyOption propertyOption)
         {
             _formOption = formOption;
             _type = type;
             _htmlHelper = htmlHelper;
+            _labelOption = labelOption;
+            _propertyOption = propertyOption;
         }
 
         public string RetuenHtml()
         {
             var modelForm = new TagBuilder("form");
-            var formProperty = new FormProperty(_htmlHelper, _formOption);
+            var formProperty = new FormProperty(_htmlHelper, _labelOption, _propertyOption);
 
             if (_formOption.Action != string.Empty)
                 modelForm.Attributes.Add("action", _formOption.Action);
@@ -29,13 +35,14 @@ namespace ObjectForm.Helper
             if (_formOption.AttributeClass != string.Empty)
                 modelForm.Attributes.Add("class", _formOption.AttributeClass);
 
+
+            //var i = Activator.CreateInstance(_type);
+
             #region Property Html
 
             var properties = _type.GetProperties();
             foreach (var property in properties)
             {
-                var propertyLabel = formProperty.Label(property);
-
                 TagBuilder propertyHtml;
 
                 var typeName = property.PropertyType.Name;
@@ -78,7 +85,14 @@ namespace ObjectForm.Helper
                 propertyHtml.Attributes.Add("id", property.Name);
                 propertyHtml.Attributes.Add("name", property.Name);
 
-                modelForm.InnerHtml += propertyLabel + propertyHtml.ToString();
+                var labelString = string.Empty;
+                if (!_labelOption.RemoveLabel)
+                {
+                    labelString = formProperty.Label(property).ToString();
+                }
+                //var propertyLabel = formProperty.Label(property);
+
+                modelForm.InnerHtml += labelString + propertyHtml;
             }
 
             #endregion

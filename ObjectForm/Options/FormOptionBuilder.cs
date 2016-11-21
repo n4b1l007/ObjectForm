@@ -1,11 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-using System.Web.Mvc;
-using System.Web.Mvc.Ajax;
-using System.Web.Routing;
-using System.Web.WebPages;
-
-namespace ObjectForm
+﻿namespace ObjectForm.Options
 {
     /// <summary>
     ///     Html Form options builder class. Enables a fluent interface for adding options to the html form.
@@ -33,12 +26,6 @@ namespace ObjectForm
         public FormOptionBuilder ApplyBootstrap()
         {
             PagerOptions.IsBootstrap = true;
-            return this;
-        }
-
-        public FormOptionBuilder LabelClass(string className)
-        {
-            PagerOptions.LabelClass = className;
             return this;
         }
     }

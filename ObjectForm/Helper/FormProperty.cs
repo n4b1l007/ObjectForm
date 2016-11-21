@@ -4,19 +4,23 @@ using System.Text;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ObjectForm.Options;
 
 namespace ObjectForm.Helper
 {
     public class FormProperty
     {
         private readonly HtmlHelper _htmlHelper;
-        private readonly FormOption _formOption;
+        //private readonly FormOption _formOption;
+        private readonly LabelOption _labelOption;
+        private readonly PropertyOption _propertyOption;
         private TagBuilder _propertyHtml;
 
-        public FormProperty(HtmlHelper htmlHelper, FormOption formOption)
+        public FormProperty(HtmlHelper htmlHelper, LabelOption labelOption, PropertyOption propertyOption)
         {
             _htmlHelper = htmlHelper;
-            _formOption = formOption;
+            _labelOption = labelOption;
+            _propertyOption = propertyOption;
         }
 
         public TagBuilder Label(PropertyInfo property)
@@ -35,11 +39,32 @@ namespace ObjectForm.Helper
             }
 
 
-            if (!string.IsNullOrEmpty(_formOption.LabelClass))
+            if (!string.IsNullOrEmpty(_labelOption.LabelClass))
             {
-                propertyLabel.Attributes.Add("class", _formOption.LabelClass);
+                propertyLabel.AddCssClass(_labelOption.LabelClass);
             }
-            return propertyLabel;
+            if (!string.IsNullOrEmpty(_labelOption.InLineStyle))
+            {
+                propertyLabel.Attributes.Add("style", _labelOption.InLineStyle);
+            }
+
+            if (!_labelOption.DivWrap)
+            {
+                return propertyLabel;
+            }
+            else
+            {
+                var divWrap = new TagBuilder("div");
+
+                divWrap.InnerHtml += propertyLabel;
+
+                if (!string.IsNullOrEmpty(_labelOption.DivWrapClass))
+                {
+                    divWrap.AddCssClass(_labelOption.DivWrapClass);
+                }
+
+                return divWrap;
+            }
         }
 
         public TagBuilder ForString(PropertyInfo stringProperty)
