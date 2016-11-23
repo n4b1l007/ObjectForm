@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Web.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ObjectForm.Options;
 
 namespace ObjectForm.Helper
@@ -9,12 +11,13 @@ namespace ObjectForm.Helper
     public class FormHtml
     {
         private readonly FormOption _formOption;
-        private readonly LabelOption _labelOption;
         private readonly HtmlHelper _htmlHelper;
+        private readonly LabelOption _labelOption;
         private readonly PropertyOption _propertyOption;
         private readonly Type _type;
 
-        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption, PropertyOption propertyOption)
+        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption,
+            PropertyOption propertyOption)
         {
             _formOption = formOption;
             _type = type;
@@ -38,34 +41,74 @@ namespace ObjectForm.Helper
 
             //var i = Activator.CreateInstance(_type);
 
+
+
+            var viewBag = _htmlHelper.ViewContext.ViewBag;
+            string jsonString = JsonConvert.SerializeObject(viewBag);
+            var jsonObject = JObject.Parse(jsonString);
             #region Property Html
 
             var properties = _type.GetProperties();
+            
             foreach (var property in properties)
             {
                 TagBuilder propertyHtml;
 
                 var typeName = property.PropertyType.Name;
 
-                if (typeName.Contains("Nullable"))
+                var viewBagJsonObject = jsonObject[property.Name];
+
+
+
+                //if (viewBagJsonObject is JArray)
+                //{
+                //    try
+                //    {
+                //        propertySelectList = viewBagJsonObject.ToObject<SelectList>();
+                //    }
+                //    catch
+                //    {
+                //        // ignored
+                //    }
+                //}
+
+                
+                var contentType = "String";
+
+                if (typeName.Contains("DateTime"))
                 {
-                    typeName = "Int32";
+                    contentType = "DateTime";
                 }
-                switch (typeName)
+                else if (typeName.Contains("Nullable") || typeName.Contains("Int") || typeName.Contains("Decimal") || typeName.Contains("Decimal"))
+                {
+                    contentType = "Int";
+                }
+
+                switch (contentType)
                 {
                     case "String":
                     {
-                        propertyHtml = formProperty.ForString(property);
+                        propertyHtml = formProperty.ForInput(property);
                         break;
                     }
-                    case "Int32":
+                    case "DateTime":
                     {
-                        propertyHtml = formProperty.ForInt(property);
+                        propertyHtml = formProperty.ForInput(property);
+                        break;
+                    }
+                    case "IList`1":
+                    {
+                        propertyHtml = formProperty.ForSelect(property);
+                        break;
+                    }
+                    case "Int":
+                    {
+                        propertyHtml = formProperty.ForSelect(property);
                         break;
                     }
                     default:
                     {
-                        propertyHtml = new TagBuilder("input");
+                        propertyHtml = new TagBuilder("br");
                         break;
                     }
                 }
@@ -80,7 +123,6 @@ namespace ObjectForm.Helper
                 {
                     propertyHtml.Attributes.Add("required", "required");
                 }
-                //propertyHtml.Attributes.Add("class", "form-control required");
                 propertyHtml.Attributes.Add("type", "text");
                 propertyHtml.Attributes.Add("id", property.Name);
                 propertyHtml.Attributes.Add("name", property.Name);
@@ -92,7 +134,7 @@ namespace ObjectForm.Helper
                 }
                 //var propertyLabel = formProperty.Label(property);
 
-                modelForm.InnerHtml += labelString + propertyHtml;
+                modelForm.InnerHtml += "<div class=\"form-group\">" + labelString + propertyHtml + "</div>";
             }
 
             #endregion

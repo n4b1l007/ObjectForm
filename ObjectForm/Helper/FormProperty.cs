@@ -67,7 +67,7 @@ namespace ObjectForm.Helper
             }
         }
 
-        public TagBuilder ForString(PropertyInfo stringProperty)
+        public TagBuilder ForInput(PropertyInfo stringProperty)
         {
             var dataTypeValue = 0;
             var dataType =
@@ -102,10 +102,9 @@ namespace ObjectForm.Helper
             return _propertyHtml;
         }
 
-        public TagBuilder ForInt(PropertyInfo intProperty)
+        public TagBuilder ForSelect(PropertyInfo intProperty)
         {
-            var attrHeader =
-                intProperty.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "IsSelectAttribute");
+            var attrHeader = intProperty.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "IsSelectAttribute");
 
             var isRequired = intProperty.CustomAttributes.Any(f => f.AttributeType.Name == "RequiredAttribute");
 
@@ -128,14 +127,11 @@ namespace ObjectForm.Helper
 
                 var propertyJson = jsonObject[propertyName];
 
-
                 if (propertyJson != null)
                 {
                     var fullList = new StringBuilder();
 
-
-                    var labelProperty =
-                        intProperty.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DisplayNameAttribute");
+                    var labelProperty = intProperty.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DisplayNameAttribute");
                     if (labelProperty != null)
                     {
                         var labelName = labelProperty.ConstructorArguments.FirstOrDefault();

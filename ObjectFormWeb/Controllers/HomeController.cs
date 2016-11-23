@@ -20,6 +20,14 @@ namespace ObjectFormWeb.Controllers
 
             ViewBag.Gender2 = new SelectList(gender, "ID", "Name");
 
+            ViewBag.Name = "Nabil";
+
+            ViewBag.Salary = new List<string>()
+            {
+                "fdsf",
+                "sdf"
+            };
+
             return View();
         }
 

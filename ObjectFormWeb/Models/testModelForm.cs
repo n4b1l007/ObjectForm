@@ -11,6 +11,11 @@ namespace ObjectFormWeb.Models
         [GridColumn("Age")]
         public int Age { get; set; }
 
+        public float Salary { get; set; }
+
+        public long? Nid { get; set; }
+
+
         [IsSelect]
         [GridColumn("Gender")]
         public int? Gender { get; set; }
@@ -19,7 +24,7 @@ namespace ObjectFormWeb.Models
 
         public DateTime? JoinDate { get; set; }
 
-        public IList<Responcibility> Responcibility { get; set; }
+        public List<Responcibility> Responcibility { get; set; }
     }
 
 
