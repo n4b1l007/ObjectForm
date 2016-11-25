@@ -35,7 +35,6 @@ D:\My Projects\ObjectForm\ObjectForm\bin\Debug\System.Web.Razor.xml
 D:\My Projects\ObjectForm\ObjectForm\bin\Debug\System.Web.WebPages.xml
 D:\My Projects\ObjectForm\ObjectForm\bin\Debug\System.Web.WebPages.Deployment.xml
 D:\My Projects\ObjectForm\ObjectForm\bin\Debug\System.Web.WebPages.Razor.xml
-D:\My Projects\ObjectForm\ObjectForm\obj\Debug\ObjectForm.csprojResolveAssemblyReference.cache
 D:\My Projects\ObjectForm\ObjectForm\obj\Debug\ObjectForm.dll
 D:\My Projects\ObjectForm\ObjectForm\obj\Debug\ObjectForm.pdb
 F:\Nabil\ObjectForm\ObjectForm\obj\Debug\ObjectForm.dll

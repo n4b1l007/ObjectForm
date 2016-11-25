@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using ObjectForm.Attribute;
 
 namespace ObjectFormWeb.Models
@@ -12,7 +13,7 @@ namespace ObjectFormWeb.Models
         public int Age { get; set; }
 
         public float Salary { get; set; }
-
+        [Required]
         public long? Nid { get; set; }
 
 
@@ -24,7 +25,7 @@ namespace ObjectFormWeb.Models
 
         public DateTime? JoinDate { get; set; }
 
-        public List<Responcibility> Responcibility { get; set; }
+        public virtual IList<Responcibility> Responcibility { get; set; }
     }
 
 

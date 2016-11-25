@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using ObjectForm.Attribute;
 using ObjectForm.Options;
 
 namespace ObjectForm.Helper
@@ -16,8 +17,7 @@ namespace ObjectForm.Helper
         private readonly PropertyOption _propertyOption;
         private readonly Type _type;
 
-        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption,
-            PropertyOption propertyOption)
+        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption, PropertyOption propertyOption)
         {
             _formOption = formOption;
             _type = type;
@@ -29,7 +29,7 @@ namespace ObjectForm.Helper
         public string RetuenHtml()
         {
             var modelForm = new TagBuilder("form");
-            var formProperty = new FormProperty(_htmlHelper, _labelOption, _propertyOption);
+            var formProperty = new FormProperty(_htmlHelper, _labelOption, _formOption);
 
             if (_formOption.Action != string.Empty)
                 modelForm.Attributes.Add("action", _formOption.Action);
@@ -38,103 +38,66 @@ namespace ObjectForm.Helper
             if (_formOption.AttributeClass != string.Empty)
                 modelForm.Attributes.Add("class", _formOption.AttributeClass);
 
-
-            //var i = Activator.CreateInstance(_type);
-
-
-
-            var viewBag = _htmlHelper.ViewContext.ViewBag;
-            string jsonString = JsonConvert.SerializeObject(viewBag);
-            var jsonObject = JObject.Parse(jsonString);
             #region Property Html
 
             var properties = _type.GetProperties();
-            
+
             foreach (var property in properties)
             {
-                TagBuilder propertyHtml;
 
-                var typeName = property.PropertyType.Name;
+                modelForm.InnerHtml += formProperty.Generator(property);
+                //TagBuilder propertyHtml;
+                ////var typeName = property.PropertyType.Name;
 
-                var viewBagJsonObject = jsonObject[property.Name];
+                //var customAttributes = property.CustomAttributes.ToList();
 
+                //var isSelect = customAttributes.Any(a => a.AttributeType == typeof(IsSelectAttribute));
+                //var isRequired = customAttributes.Any(f => f.AttributeType == typeof(RequiredAttribute));
 
+                //var rawValue = _htmlHelper.ViewContext.ViewData.Eval(property.Name);
 
-                //if (viewBagJsonObject is JArray)
+                ////var isList = typeof (IList).IsAssignableFrom(property.PropertyType);
+                //var isList = property.PropertyType.Name.Contains("List");
+
+                //if (isSelect || rawValue is IEnumerable<SelectListItem>)
                 //{
-                //    try
-                //    {
-                //        propertySelectList = viewBagJsonObject.ToObject<SelectList>();
-                //    }
-                //    catch
-                //    {
-                //        // ignored
-                //    }
+                //    var selectListItem = rawValue as IEnumerable<SelectListItem>;
+                //    propertyHtml = formProperty.ForSelect(property, selectListItem);
+                //}
+                //else if (isList)
+                //{
+                //    propertyHtml = formProperty.ForList(property);
+                //}
+                //else
+                //{
+                //    propertyHtml = formProperty.ForInput(property);
                 //}
 
-                
-                var contentType = "String";
+                //if (_formOption.IsBootstrap && !isList)
+                //{
+                //    propertyHtml.Attributes.Add("class", "form-control");
+                //}
 
-                if (typeName.Contains("DateTime"))
-                {
-                    contentType = "DateTime";
-                }
-                else if (typeName.Contains("Nullable") || typeName.Contains("Int") || typeName.Contains("Decimal") || typeName.Contains("Decimal"))
-                {
-                    contentType = "Int";
-                }
+                //if (isRequired)
+                //{
+                //    propertyHtml.Attributes.Add("required", "required");
+                //}
+                //propertyHtml.Attributes.Add("type", "text");
+                //propertyHtml.Attributes.Add("id", property.Name);
+                //propertyHtml.Attributes.Add("name", property.Name);
 
-                switch (contentType)
-                {
-                    case "String":
-                    {
-                        propertyHtml = formProperty.ForInput(property);
-                        break;
-                    }
-                    case "DateTime":
-                    {
-                        propertyHtml = formProperty.ForInput(property);
-                        break;
-                    }
-                    case "IList`1":
-                    {
-                        propertyHtml = formProperty.ForSelect(property);
-                        break;
-                    }
-                    case "Int":
-                    {
-                        propertyHtml = formProperty.ForSelect(property);
-                        break;
-                    }
-                    default:
-                    {
-                        propertyHtml = new TagBuilder("br");
-                        break;
-                    }
-                }
+                //var labelString = string.Empty;
+                //if (!isList && !_labelOption.RemoveLabel)
+                //{
+                //    labelString = formProperty.Label(property).ToString();
+                //}
+                ////var propertyLabel = formProperty.Label(property);
 
-                if (_formOption.IsBootstrap)
-                {
-                    propertyHtml.Attributes.Add("class", "form-control");
-                }
+                //var formGroup = new TagBuilder("div");
+                //formGroup.AddCssClass("form-group");
+                //formGroup.InnerHtml = labelString + propertyHtml;
 
-                var isRequired = property.CustomAttributes.Any(f => f.AttributeType.Name == "RequiredAttribute");
-                if (isRequired)
-                {
-                    propertyHtml.Attributes.Add("required", "required");
-                }
-                propertyHtml.Attributes.Add("type", "text");
-                propertyHtml.Attributes.Add("id", property.Name);
-                propertyHtml.Attributes.Add("name", property.Name);
-
-                var labelString = string.Empty;
-                if (!_labelOption.RemoveLabel)
-                {
-                    labelString = formProperty.Label(property).ToString();
-                }
-                //var propertyLabel = formProperty.Label(property);
-
-                modelForm.InnerHtml += "<div class=\"form-group\">" + labelString + propertyHtml + "</div>";
+                //modelForm.InnerHtml += formGroup;
             }
 
             #endregion
@@ -144,5 +107,7 @@ namespace ObjectForm.Helper
             modelForm.InnerHtml += button;
             return modelForm.ToString();
         }
+
+
     }
 }

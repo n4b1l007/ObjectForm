@@ -1,9 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Web.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using ObjectForm.Attribute;
 using ObjectForm.Options;
 
 namespace ObjectForm.Helper
@@ -11,17 +12,77 @@ namespace ObjectForm.Helper
     public class FormProperty
     {
         private readonly HtmlHelper _htmlHelper;
-        //private readonly FormOption _formOption;
+        private readonly FormOption _formOption;
         private readonly LabelOption _labelOption;
-        private readonly PropertyOption _propertyOption;
+        //private readonly PropertyOption _propertyOption;
         private TagBuilder _propertyHtml;
 
-        public FormProperty(HtmlHelper htmlHelper, LabelOption labelOption, PropertyOption propertyOption)
+        public FormProperty(HtmlHelper htmlHelper, LabelOption labelOption, FormOption formOption)
         {
             _htmlHelper = htmlHelper;
             _labelOption = labelOption;
-            _propertyOption = propertyOption;
+            _formOption = formOption;
         }
+
+        public TagBuilder Generator(PropertyInfo property)
+        {
+            //var propertyStack = new TagBuilder("");
+
+            TagBuilder propertyHtml;
+            //var typeName = property.PropertyType.Name;
+
+            var customAttributes = property.CustomAttributes.ToList();
+
+            var isSelect = customAttributes.Any(a => a.AttributeType == typeof(IsSelectAttribute));
+            var isRequired = customAttributes.Any(f => f.AttributeType == typeof(RequiredAttribute));
+
+            var rawValue = _htmlHelper.ViewContext.ViewData.Eval(property.Name);
+
+            var isList = property.PropertyType.Name.Contains("List");//var isList = typeof (IList).IsAssignableFrom(property.PropertyType);
+
+            if (isSelect || rawValue is IEnumerable<SelectListItem>)
+            {
+                var selectListItem = rawValue as IEnumerable<SelectListItem>;
+                propertyHtml = ForSelect(property, selectListItem);
+            }
+            else if (isList)
+            {
+                propertyHtml = ForList(property);
+            }
+            else
+            {
+                propertyHtml = ForInput(property);
+            }
+
+            if (_formOption.IsBootstrap && !isList)
+            {
+                propertyHtml.Attributes.Add("class", "form-control");
+            }
+
+            if (isRequired)
+            {
+                propertyHtml.Attributes.Add("required", "required");
+            }
+            propertyHtml.Attributes.Add("type", "text");
+            propertyHtml.Attributes.Add("id", property.Name);
+            propertyHtml.Attributes.Add("name", property.Name);
+
+            var labelString = string.Empty;
+            if (!isList && !_labelOption.RemoveLabel)
+            {
+                labelString = Label(property).ToString();
+            }
+            //var propertyLabel = formProperty.Label(property);
+
+            var formGroup = new TagBuilder("div");
+            formGroup.AddCssClass("form-group");
+            formGroup.InnerHtml = labelString + propertyHtml;
+
+            return formGroup;
+
+            //return propertyStack;
+        }
+
 
         public TagBuilder Label(PropertyInfo property)
         {
@@ -70,8 +131,7 @@ namespace ObjectForm.Helper
         public TagBuilder ForInput(PropertyInfo stringProperty)
         {
             var dataTypeValue = 0;
-            var dataType =
-                stringProperty.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DataTypeAttribute");
+            var dataType = stringProperty.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DataTypeAttribute");
 
             if (dataType != null)
             {
@@ -102,67 +162,66 @@ namespace ObjectForm.Helper
             return _propertyHtml;
         }
 
-        public TagBuilder ForSelect(PropertyInfo intProperty)
+        public TagBuilder ForSelect(PropertyInfo intProperty, IEnumerable<SelectListItem> selectListItem)
         {
-            var attrHeader = intProperty.CustomAttributes.FirstOrDefault(a => a.AttributeType.Name == "IsSelectAttribute");
+            _propertyHtml = new TagBuilder("select");
 
-            var isRequired = intProperty.CustomAttributes.Any(f => f.AttributeType.Name == "RequiredAttribute");
-
-            var isSelect = attrHeader != null;
-
-            var propertyString = isSelect ? "select" : "input";
-
-            _propertyHtml = new TagBuilder(propertyString);
-
-
-            if (isSelect)
+            if (selectListItem != null)
             {
-                var viewBag = _htmlHelper.ViewContext.ViewBag;
-                if (isRequired)
-                    _propertyHtml.Attributes.Add("class", "required");
-
-                var propertyName = intProperty.Name;
-                string jsonString = JsonConvert.SerializeObject(viewBag);
-                var jsonObject = JObject.Parse(jsonString);
-
-                var propertyJson = jsonObject[propertyName];
-
-                if (propertyJson != null)
+                foreach (var listItem in selectListItem)
                 {
-                    var fullList = new StringBuilder();
-
-                    var labelProperty = intProperty.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DisplayNameAttribute");
-                    if (labelProperty != null)
-                    {
-                        var labelName = labelProperty.ConstructorArguments.FirstOrDefault();
-                        var propertyLabelName = labelName.Value.ToString();
-                        var selectLable = propertyLabelName != string.Empty
-                            ? propertyLabelName
-                            : propertyName;
-                        var placeHolderoption = new TagBuilder("option")
-                        {
-                            InnerHtml = "Select " + selectLable
-                        };
-                        placeHolderoption.Attributes.Add("value", "");
-                        fullList.AppendLine(placeHolderoption.ToString());
-                    }
-
-                        var hh = propertyJson.Children();
-                        foreach (var v in hh)
-                        {
-                            var value = v["Value"];
-                            var text = v["Text"];
-
-
-                            var option = new TagBuilder("option") {InnerHtml = text.ToString()};
-                            option.Attributes.Add("value", value.ToString());
-                            fullList.AppendLine(option.ToString());
-                        }
-
-                        _propertyHtml.InnerHtml = fullList.ToString();
+                    var option = new TagBuilder("option") { InnerHtml = listItem.Text };
+                    option.Attributes.Add("value", listItem.Value);
+                    _propertyHtml.InnerHtml += option;
                 }
             }
             return _propertyHtml;
+        }
+
+        public TagBuilder ForList(PropertyInfo listProperty)
+        {
+            var property = new TagBuilder("table");
+
+            property.AddCssClass("table");
+
+            var theadProperty = new TagBuilder("thead");
+
+            var trProperty = new TagBuilder("tr");
+
+            var assambliNAme = listProperty.PropertyType.FullName.Split('[').Last().Split(']').FirstOrDefault();
+
+            if (assambliNAme != null)
+            {
+                var type = Type.GetType(assambliNAme);
+
+                if (type != null)
+                {
+                    var properties = type.GetProperties();
+
+                    foreach (var propertyInfo in properties)
+                    {
+                        var tdProperty = new TagBuilder("th")
+                        {
+                            InnerHtml = propertyInfo.Name
+                        };
+
+                        trProperty.InnerHtml += tdProperty;
+                    }
+
+                }
+            }
+
+            theadProperty.InnerHtml += trProperty;
+            property.InnerHtml += theadProperty;
+
+            //var fullaName = listProperty.PropertyType.FullName;
+            //var startIndex = fullaName.IndexOf("[[", StringComparison.Ordinal) + 2 ;
+            //var length = fullaName.Length - fullaName.IndexOf("[[", StringComparison.Ordinal) - 4;
+            //var piece = fullaName.Substring(startIndex, length);
+
+            //var type2 = Type.GetType(piece);
+
+            return property;
         }
     }
 }
