@@ -14,20 +14,24 @@ namespace ObjectForm.Helper
         private readonly HtmlHelper _htmlHelper;
         private readonly FormOption _formOption;
         private readonly LabelOption _labelOption;
-        //private readonly PropertyOption _propertyOption;
+        private readonly PropertyOption _propertyOption;
         private TagBuilder _propertyHtml;
 
-        public FormProperty(HtmlHelper htmlHelper, LabelOption labelOption, FormOption formOption)
+        public FormProperty(HtmlHelper htmlHelper, LabelOption labelOption, FormOption formOption, PropertyOption propertyOption)
         {
             _htmlHelper = htmlHelper;
             _labelOption = labelOption;
             _formOption = formOption;
+            _propertyOption = propertyOption;
         }
 
         public TagBuilder Generator(PropertyInfo property)
         {
-            //var propertyStack = new TagBuilder("");
+            return Generator(property, true);
+        }
 
+        public TagBuilder Generator(PropertyInfo property, bool withLabel)
+        {
             TagBuilder propertyHtml;
             //var typeName = property.PropertyType.Name;
 
@@ -38,7 +42,7 @@ namespace ObjectForm.Helper
 
             var rawValue = _htmlHelper.ViewContext.ViewData.Eval(property.Name);
 
-            var isList = property.PropertyType.Name.Contains("List");//var isList = typeof (IList).IsAssignableFrom(property.PropertyType);
+            var isList = property.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null && property.PropertyType != typeof(string); //property.PropertyType.Name.Contains("List");//var isList = typeof (IList).IsAssignableFrom(property.PropertyType);
 
             if (isSelect || rawValue is IEnumerable<SelectListItem>)
             {
@@ -68,19 +72,24 @@ namespace ObjectForm.Helper
             propertyHtml.Attributes.Add("name", property.Name);
 
             var labelString = string.Empty;
-            if (!isList && !_labelOption.RemoveLabel)
+            if (withLabel && !isList && !_labelOption.RemoveLabel)
             {
                 labelString = Label(property).ToString();
             }
             //var propertyLabel = formProperty.Label(property);
 
-            var formGroup = new TagBuilder("div");
-            formGroup.AddCssClass("form-group");
-            formGroup.InnerHtml = labelString + propertyHtml;
+            if (_propertyOption.DivWrap)
+            {
+                var formGroup = new TagBuilder("div");
+                formGroup.AddCssClass(_propertyOption.DivWrapClass);
+                formGroup.InnerHtml = labelString + propertyHtml;
 
-            return formGroup;
-
-            //return propertyStack;
+                return formGroup;
+            }
+            else
+            {
+                return propertyHtml;
+            }
         }
 
 
@@ -180,39 +189,17 @@ namespace ObjectForm.Helper
 
         public TagBuilder ForList(PropertyInfo listProperty)
         {
-            var property = new TagBuilder("table");
+            var tableProperty = new TagBuilder("table");
 
-            property.AddCssClass("table");
+            tableProperty.AddCssClass("table");
 
             var theadProperty = new TagBuilder("thead");
+            var tbodyProperty = new TagBuilder("tbody");
 
-            var trProperty = new TagBuilder("tr");
+            var headTrProperty = new TagBuilder("tr");
+            var bodyTrProperty = new TagBuilder("tr");
 
-            var assambliNAme = listProperty.PropertyType.FullName.Split('[').Last().Split(']').FirstOrDefault();
-
-            if (assambliNAme != null)
-            {
-                var type = Type.GetType(assambliNAme);
-
-                if (type != null)
-                {
-                    var properties = type.GetProperties();
-
-                    foreach (var propertyInfo in properties)
-                    {
-                        var tdProperty = new TagBuilder("th")
-                        {
-                            InnerHtml = propertyInfo.Name
-                        };
-
-                        trProperty.InnerHtml += tdProperty;
-                    }
-
-                }
-            }
-
-            theadProperty.InnerHtml += trProperty;
-            property.InnerHtml += theadProperty;
+            var assambliName = listProperty.PropertyType.FullName.Split('[').Last().Split(']').FirstOrDefault();
 
             //var fullaName = listProperty.PropertyType.FullName;
             //var startIndex = fullaName.IndexOf("[[", StringComparison.Ordinal) + 2 ;
@@ -221,7 +208,56 @@ namespace ObjectForm.Helper
 
             //var type2 = Type.GetType(piece);
 
-            return property;
+
+            if (assambliName != null)
+            {
+                var type = Type.GetType(assambliName);
+
+                if (type != null)
+                {
+                    var properties = type.GetProperties();
+
+                    foreach (var propertyInfo in properties)
+                    {
+                        var thProperty = new TagBuilder("th")
+                        {
+                            InnerHtml = propertyInfo.Name
+                        };
+
+                        headTrProperty.InnerHtml += thProperty;
+
+                        var tdProperty = new TagBuilder("td")
+                        {
+                            InnerHtml = Generator(propertyInfo, false).ToString()
+                    };
+
+
+                        bodyTrProperty.InnerHtml += tdProperty;
+                    }
+                }
+            }
+
+            theadProperty.InnerHtml += headTrProperty;
+            tbodyProperty.InnerHtml += bodyTrProperty;
+            tableProperty.InnerHtml += theadProperty.ToString() + tbodyProperty;
+
+
+            var panel = new TagBuilder("div");
+            panel.AddCssClass("panel panel-default");
+
+            var panelHead = new TagBuilder("div");
+            panelHead.AddCssClass("panel-heading");
+            panelHead.InnerHtml = listProperty.Name;
+
+
+            var panelBody = new TagBuilder("div");
+            panelBody.AddCssClass("panel-body");
+            panelBody.InnerHtml = tableProperty.ToString();
+
+
+            panel.InnerHtml = panelHead + panelBody.ToString();
+
+            return panel;
         }
     }
 }

@@ -10,8 +10,9 @@
 
 <div style="margin-top: 50px"></div>
 
-@Html.ObjectForm(typeof(TestModelForm)).Options(o => o
-.Action("Action")
-.ApplyBootstrap()).AddLabelOptions(l => l
-.WrapArroundWithDiv("col-md-6 col-sm-6 col-xs-12")
-.AddInLineStyle("color:green"))
+@Html.ObjectForm(typeof (TestModelForm)).Options(o =>
+                        o.Action("Action").ApplyBootstrap()).AddLabelOptions(l =>
+                        l.WrapArroundWithDiv("col-md-6 col-sm-6 col-xs-12").AddInLineStyle("color:green")).AddPropertyOptions(p =>
+                        p.WrapArroundWithDiv("form-group"))
+
+

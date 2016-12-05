@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
-using ObjectForm.Attribute;
 using ObjectForm.Options;
 
 namespace ObjectForm.Helper
@@ -17,7 +12,8 @@ namespace ObjectForm.Helper
         private readonly PropertyOption _propertyOption;
         private readonly Type _type;
 
-        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption, PropertyOption propertyOption)
+        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption,
+            PropertyOption propertyOption)
         {
             _formOption = formOption;
             _type = type;
@@ -29,7 +25,7 @@ namespace ObjectForm.Helper
         public string RetuenHtml()
         {
             var modelForm = new TagBuilder("form");
-            var formProperty = new FormProperty(_htmlHelper, _labelOption, _formOption);
+            var formProperty = new FormProperty(_htmlHelper, _labelOption, _formOption, _propertyOption);
 
             if (_formOption.Action != string.Empty)
                 modelForm.Attributes.Add("action", _formOption.Action);
@@ -44,60 +40,7 @@ namespace ObjectForm.Helper
 
             foreach (var property in properties)
             {
-
                 modelForm.InnerHtml += formProperty.Generator(property);
-                //TagBuilder propertyHtml;
-                ////var typeName = property.PropertyType.Name;
-
-                //var customAttributes = property.CustomAttributes.ToList();
-
-                //var isSelect = customAttributes.Any(a => a.AttributeType == typeof(IsSelectAttribute));
-                //var isRequired = customAttributes.Any(f => f.AttributeType == typeof(RequiredAttribute));
-
-                //var rawValue = _htmlHelper.ViewContext.ViewData.Eval(property.Name);
-
-                ////var isList = typeof (IList).IsAssignableFrom(property.PropertyType);
-                //var isList = property.PropertyType.Name.Contains("List");
-
-                //if (isSelect || rawValue is IEnumerable<SelectListItem>)
-                //{
-                //    var selectListItem = rawValue as IEnumerable<SelectListItem>;
-                //    propertyHtml = formProperty.ForSelect(property, selectListItem);
-                //}
-                //else if (isList)
-                //{
-                //    propertyHtml = formProperty.ForList(property);
-                //}
-                //else
-                //{
-                //    propertyHtml = formProperty.ForInput(property);
-                //}
-
-                //if (_formOption.IsBootstrap && !isList)
-                //{
-                //    propertyHtml.Attributes.Add("class", "form-control");
-                //}
-
-                //if (isRequired)
-                //{
-                //    propertyHtml.Attributes.Add("required", "required");
-                //}
-                //propertyHtml.Attributes.Add("type", "text");
-                //propertyHtml.Attributes.Add("id", property.Name);
-                //propertyHtml.Attributes.Add("name", property.Name);
-
-                //var labelString = string.Empty;
-                //if (!isList && !_labelOption.RemoveLabel)
-                //{
-                //    labelString = formProperty.Label(property).ToString();
-                //}
-                ////var propertyLabel = formProperty.Label(property);
-
-                //var formGroup = new TagBuilder("div");
-                //formGroup.AddCssClass("form-group");
-                //formGroup.InnerHtml = labelString + propertyHtml;
-
-                //modelForm.InnerHtml += formGroup;
             }
 
             #endregion
@@ -107,7 +50,5 @@ namespace ObjectForm.Helper
             modelForm.InnerHtml += button;
             return modelForm.ToString();
         }
-
-
     }
 }
