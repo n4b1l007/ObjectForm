@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web.Mvc;
+using Newtonsoft.Json;
 using ObjectForm.Options;
 
 namespace ObjectForm.Helper
@@ -12,8 +13,7 @@ namespace ObjectForm.Helper
         private readonly PropertyOption _propertyOption;
         private readonly Type _type;
 
-        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption,
-            PropertyOption propertyOption)
+        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption, PropertyOption propertyOption)
         {
             _formOption = formOption;
             _type = type;

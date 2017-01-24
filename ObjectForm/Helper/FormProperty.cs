@@ -27,10 +27,10 @@ namespace ObjectForm.Helper
 
         public TagBuilder Generator(PropertyInfo property)
         {
-            return Generator(property, true);
+            return Generator(property, true, true);
         }
 
-        public TagBuilder Generator(PropertyInfo property, bool withLabel)
+        public TagBuilder Generator(PropertyInfo property, bool withLabel, bool withWraperDiv)
         {
             TagBuilder propertyHtml;
             //var typeName = property.PropertyType.Name;
@@ -78,7 +78,7 @@ namespace ObjectForm.Helper
             }
             //var propertyLabel = formProperty.Label(property);
 
-            if (_propertyOption.DivWrap)
+            if (_propertyOption.DivWrap && withWraperDiv)
             {
                 var formGroup = new TagBuilder("div");
                 formGroup.AddCssClass(_propertyOption.DivWrapClass);
@@ -145,7 +145,7 @@ namespace ObjectForm.Helper
             if (dataType != null)
             {
                 var dataTypeArg = dataType.ConstructorArguments.FirstOrDefault();
-                dataTypeValue = (int) dataTypeArg.Value;
+                dataTypeValue = (int)dataTypeArg.Value;
             }
 
             if (dataTypeValue == 0)
@@ -157,14 +157,14 @@ namespace ObjectForm.Helper
                 switch (dataTypeValue)
                 {
                     case 9:
-                    {
-                        _propertyHtml = new TagBuilder("textarea");
-                    }
+                        {
+                            _propertyHtml = new TagBuilder("textarea");
+                        }
                         break;
                     default:
-                    {
-                        _propertyHtml = new TagBuilder("input");
-                    }
+                        {
+                            _propertyHtml = new TagBuilder("input");
+                        }
                         break;
                 }
             }
@@ -228,12 +228,31 @@ namespace ObjectForm.Helper
 
                         var tdProperty = new TagBuilder("td")
                         {
-                            InnerHtml = Generator(propertyInfo, false).ToString()
-                    };
-
+                            InnerHtml = Generator(propertyInfo, false, false).ToString()
+                        };
 
                         bodyTrProperty.InnerHtml += tdProperty;
                     }
+
+                    #region "Add Button"
+
+                    var addButton = new TagBuilder("button")
+                    {
+                        InnerHtml = "<span class=\"glyphicon glyphicon-plus-sign\"></span>"
+                    };
+                    addButton.AddCssClass("btn btn-default");
+                    addButton.Attributes.Add("type", "button");
+
+                    headTrProperty.InnerHtml += new TagBuilder("th");
+
+                    var td = new TagBuilder("td");
+                    td.Attributes.Add("style", "width:50px");
+                    td.InnerHtml = addButton.ToString();
+
+
+                    bodyTrProperty.InnerHtml += td;
+
+                    #endregion
                 }
             }
 

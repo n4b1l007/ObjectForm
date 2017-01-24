@@ -8,9 +8,9 @@ namespace ObjectForm
 {
     public class ObjectForm : IHtmlString
     {
-        private readonly HtmlHelper _htmlHelper;
-        private readonly Type _type;
         private FormHtml _formHtml;
+        private readonly Type _type;
+        private readonly HtmlHelper _htmlHelper;
         private readonly FormOption _formOption;
         private readonly LabelOption _labelOption;
         private readonly PropertyOption _propertyOption;
