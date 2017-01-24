@@ -7,12 +7,23 @@
     ViewBag.Title = "Home Page";
 }
 
+<style>
+    form .panel-body {
+        padding: 0 !important;
+    }
+    form .table {
+        margin-bottom: 0px;
+    }
+    td input, td select {
+        max-width: 100%!important;
+    }
+</style>
 
 <div style="margin-top: 50px"></div>
 
-@Html.ObjectForm(typeof (TestModelForm)).Options(o =>
-                        o.Action("Action").ApplyBootstrap()).AddLabelOptions(l =>
-                        l.WrapArroundWithDiv("col-md-6 col-sm-6 col-xs-12").AddInLineStyle("color:green")).AddPropertyOptions(p =>
-                        p.WrapArroundWithDiv("form-group"))
+@Html.ObjectForm(typeof(TestModelForm)).Options(o =>
+                       o.Action("Action").ApplyBootstrap()).AddLabelOptions(l =>
+                       l.WrapArroundWithDiv("col-md-3 col-sm-3 col-xs-12").AddInLineStyle("color:green")).AddPropertyOptions(p =>
+                       p.WrapArroundWithDiv("form-group"))
 
 
