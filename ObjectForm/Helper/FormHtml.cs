@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web.Mvc;
-using Newtonsoft.Json;
 using ObjectForm.Options;
+using ObjectForm.Settings;
 
 namespace ObjectForm.Helper
 {
@@ -24,26 +25,43 @@ namespace ObjectForm.Helper
 
         public string RetuenHtml()
         {
-            var modelForm = new TagBuilder("form");
+            var modelForm = new TagBuilder(HtmlTags.Form);
             var formProperty = new FormProperty(_htmlHelper, _labelOption, _formOption, _propertyOption);
 
             if (_formOption.Action != string.Empty)
-                modelForm.Attributes.Add("action", _formOption.Action);
+                modelForm.Attributes.Add(HtmlTags.Action, _formOption.Action);
             if (_formOption.AttributeId != string.Empty)
-                modelForm.Attributes.Add("id", _formOption.AttributeId);
+                modelForm.Attributes.Add(HtmlTags.Id, _formOption.AttributeId);
             if (_formOption.AttributeClass != string.Empty)
-                modelForm.Attributes.Add("class", _formOption.AttributeClass);
+                modelForm.Attributes.Add(HtmlTags.Class, _formOption.AttributeClass);
 
             #region Property Html
 
             var properties = _type.GetProperties();
 
+            var modelFormInnerHtml = new TagBuilder(HtmlTags.Div);
+            modelFormInnerHtml.AddCssClass("row");
+
+            var table = string.Empty;
             foreach (var property in properties)
             {
-                modelForm.InnerHtml += formProperty.Generator(property);
+                if (property.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null && property.PropertyType != typeof(string))
+                {
+                    table += formProperty.Generator(property);
+                }
+                else
+                {
+                    modelFormInnerHtml.InnerHtml += formProperty.Generator(property);
+                }
             }
 
+            modelForm.InnerHtml += modelFormInnerHtml + table;
             #endregion
+
+            var t = new TagBuilder(HtmlTags.Button);
+            t.Attributes.Add(HtmlTags.Type, "submit");
+            t.SetInnerText("Create");
+
 
             const string button = "<br /><input type = \"submit\" value=\"Create\" class=\"btn btn-success\" />";
 

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Web.Mvc;
 using ObjectForm.Attribute;
 using ObjectForm.Options;
+using ObjectForm.Settings;
 
 namespace ObjectForm.Helper
 {
@@ -33,7 +34,6 @@ namespace ObjectForm.Helper
         public TagBuilder Generator(PropertyInfo property, bool withLabel, bool withWraperDiv)
         {
             TagBuilder propertyHtml;
-            //var typeName = property.PropertyType.Name;
 
             var customAttributes = property.CustomAttributes.ToList();
 
@@ -42,7 +42,7 @@ namespace ObjectForm.Helper
 
             var rawValue = _htmlHelper.ViewContext.ViewData.Eval(property.Name);
 
-            var isList = property.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null && property.PropertyType != typeof(string); //property.PropertyType.Name.Contains("List");//var isList = typeof (IList).IsAssignableFrom(property.PropertyType);
+            var isList = property.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null && property.PropertyType != typeof(string);
 
             if (isSelect || rawValue is IEnumerable<SelectListItem>)
             {
@@ -60,42 +60,52 @@ namespace ObjectForm.Helper
 
             if (_formOption.IsBootstrap && !isList)
             {
-                propertyHtml.Attributes.Add("class", "form-control");
+                propertyHtml.Attributes.Add(HtmlTags.Class, BootstrapClass.FormControl);
             }
 
             if (isRequired)
             {
-                propertyHtml.Attributes.Add("required", "required");
+                propertyHtml.Attributes.Add(HtmlTags.Required, HtmlTags.Required);
             }
-            propertyHtml.Attributes.Add("type", "text");
-            propertyHtml.Attributes.Add("id", property.Name);
-            propertyHtml.Attributes.Add("name", property.Name);
+            propertyHtml.Attributes.Add(HtmlTags.Type, HtmlTags.Text);
+            propertyHtml.Attributes.Add(HtmlTags.Id, property.Name);
+            propertyHtml.Attributes.Add(HtmlTags.Name, property.Name);
 
             var labelString = string.Empty;
             if (withLabel && !isList && !_labelOption.RemoveLabel)
             {
                 labelString = Label(property).ToString();
             }
-            //var propertyLabel = formProperty.Label(property);
 
-            if (_propertyOption.DivWrap && withWraperDiv)
+            var propertyString = propertyHtml;
+            if (_propertyOption.DivWrap && !isList)
             {
-                var formGroup = new TagBuilder("div");
+                var formGroup = new TagBuilder(HtmlTags.Div);
                 formGroup.AddCssClass(_propertyOption.DivWrapClass);
-                formGroup.InnerHtml = labelString + propertyHtml;
-
-                return formGroup;
+                formGroup.InnerHtml = propertyHtml.ToString();
+                propertyString = formGroup;
             }
-            else
+            if (_formOption.DivWrap && withWraperDiv && !isList)
             {
-                return propertyHtml;
+                var formGroup = new TagBuilder(HtmlTags.Div);
+                formGroup.AddCssClass(_formOption.DivWrapClass);
+                formGroup.InnerHtml = labelString + propertyString;
+
+                var rowProperty = new TagBuilder(HtmlTags.Div);
+                rowProperty.AddCssClass("col-sm-6 col-lg-6");
+                rowProperty.InnerHtml += formGroup;
+
+                return rowProperty;
             }
+
+
+            return propertyHtml;
         }
 
 
         public TagBuilder Label(PropertyInfo property)
         {
-            var propertyLabel = new TagBuilder("label");
+            var propertyLabel = new TagBuilder(HtmlTags.Label);
             var labelProperty = property.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DisplayNameAttribute");
             if (labelProperty != null)
             {
@@ -115,7 +125,7 @@ namespace ObjectForm.Helper
             }
             if (!string.IsNullOrEmpty(_labelOption.InLineStyle))
             {
-                propertyLabel.Attributes.Add("style", _labelOption.InLineStyle);
+                propertyLabel.Attributes.Add(HtmlTags.Style, _labelOption.InLineStyle);
             }
 
             if (!_labelOption.DivWrap)
@@ -124,7 +134,7 @@ namespace ObjectForm.Helper
             }
             else
             {
-                var divWrap = new TagBuilder("div");
+                var divWrap = new TagBuilder(HtmlTags.Div);
 
                 divWrap.InnerHtml += propertyLabel;
 
@@ -150,7 +160,7 @@ namespace ObjectForm.Helper
 
             if (dataTypeValue == 0)
             {
-                _propertyHtml = new TagBuilder("input");
+                _propertyHtml = new TagBuilder(HtmlTags.Input);
             }
             else
             {
@@ -158,14 +168,14 @@ namespace ObjectForm.Helper
                 {
                     case 9:
                         {
-                            _propertyHtml = new TagBuilder("textarea");
+                            _propertyHtml = new TagBuilder(HtmlTags.Textarea);
+                            break;
                         }
-                        break;
                     default:
                         {
-                            _propertyHtml = new TagBuilder("input");
+                            _propertyHtml = new TagBuilder(HtmlTags.Input);
+                            break;
                         }
-                        break;
                 }
             }
             return _propertyHtml;
@@ -173,14 +183,14 @@ namespace ObjectForm.Helper
 
         public TagBuilder ForSelect(PropertyInfo intProperty, IEnumerable<SelectListItem> selectListItem)
         {
-            _propertyHtml = new TagBuilder("select");
+            _propertyHtml = new TagBuilder(HtmlTags.Select);
 
             if (selectListItem != null)
             {
                 foreach (var listItem in selectListItem)
                 {
-                    var option = new TagBuilder("option") { InnerHtml = listItem.Text };
-                    option.Attributes.Add("value", listItem.Value);
+                    var option = new TagBuilder(HtmlTags.SelectOption) { InnerHtml = listItem.Text };
+                    option.Attributes.Add(HtmlTags.Value, listItem.Value);
                     _propertyHtml.InnerHtml += option;
                 }
             }
@@ -189,15 +199,15 @@ namespace ObjectForm.Helper
 
         public TagBuilder ForList(PropertyInfo listProperty)
         {
-            var tableProperty = new TagBuilder("table");
+            var tableProperty = new TagBuilder(HtmlTags.Table);
 
-            tableProperty.AddCssClass("table");
+            tableProperty.AddCssClass(HtmlTags.Table);
 
-            var theadProperty = new TagBuilder("thead");
-            var tbodyProperty = new TagBuilder("tbody");
+            var theadProperty = new TagBuilder(HtmlTags.TableHead);
+            var tbodyProperty = new TagBuilder(HtmlTags.TableBody);
 
-            var headTrProperty = new TagBuilder("tr");
-            var bodyTrProperty = new TagBuilder("tr");
+            var headTrProperty = new TagBuilder(HtmlTags.TableTr);
+            var bodyTrProperty = new TagBuilder(HtmlTags.TableTr);
 
             var assambliName = listProperty.PropertyType.FullName.Split('[').Last().Split(']').FirstOrDefault();
 
@@ -219,14 +229,14 @@ namespace ObjectForm.Helper
 
                     foreach (var propertyInfo in properties)
                     {
-                        var thProperty = new TagBuilder("th")
+                        var thProperty = new TagBuilder(HtmlTags.TableTh)
                         {
                             InnerHtml = propertyInfo.Name
                         };
 
                         headTrProperty.InnerHtml += thProperty;
 
-                        var tdProperty = new TagBuilder("td")
+                        var tdProperty = new TagBuilder(HtmlTags.TableTd)
                         {
                             InnerHtml = Generator(propertyInfo, false, false).ToString()
                         };
@@ -236,17 +246,17 @@ namespace ObjectForm.Helper
 
                     #region "Add Button"
 
-                    var addButton = new TagBuilder("button")
+                    var addButton = new TagBuilder(HtmlTags.Button)
                     {
                         InnerHtml = "<span class=\"glyphicon glyphicon-plus-sign\"></span>"
                     };
-                    addButton.AddCssClass("btn btn-default");
-                    addButton.Attributes.Add("type", "button");
+                    addButton.AddCssClass(BootstrapClass.ButtonDefault);
+                    addButton.Attributes.Add(HtmlTags.Type, HtmlTags.Button);
 
-                    headTrProperty.InnerHtml += new TagBuilder("th");
+                    headTrProperty.InnerHtml += new TagBuilder(HtmlTags.TableTh);
 
-                    var td = new TagBuilder("td");
-                    td.Attributes.Add("style", "width:50px");
+                    var td = new TagBuilder(HtmlTags.TableTd);
+                    td.Attributes.Add(HtmlTags.Style, "width:50px");
                     td.InnerHtml = addButton.ToString();
 
 
@@ -261,16 +271,16 @@ namespace ObjectForm.Helper
             tableProperty.InnerHtml += theadProperty.ToString() + tbodyProperty;
 
 
-            var panel = new TagBuilder("div");
-            panel.AddCssClass("panel panel-default");
+            var panel = new TagBuilder(HtmlTags.Div);
+            panel.AddCssClass(BootstrapClass.PanelDefault);
 
-            var panelHead = new TagBuilder("div");
-            panelHead.AddCssClass("panel-heading");
+            var panelHead = new TagBuilder(HtmlTags.Div);
+            panelHead.AddCssClass(BootstrapClass.PanelHeading);
             panelHead.InnerHtml = listProperty.Name;
 
 
-            var panelBody = new TagBuilder("div");
-            panelBody.AddCssClass("panel-body");
+            var panelBody = new TagBuilder(HtmlTags.Div);
+            panelBody.AddCssClass(BootstrapClass.PanelBody);
             panelBody.InnerHtml = tableProperty.ToString();
 
 
