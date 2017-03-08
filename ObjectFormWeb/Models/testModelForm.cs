@@ -30,7 +30,6 @@ namespace ObjectFormWeb.Models
         public virtual IList<Responcibility> Responcibility { get; set; }
     }
 
-
     public class Responcibility
     {
         public string JobName { get; set; }
