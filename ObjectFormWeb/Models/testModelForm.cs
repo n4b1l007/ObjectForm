@@ -13,10 +13,12 @@ namespace ObjectFormWeb.Models
         public int Age { get; set; }
 
         public float Salary { get; set; }
+
         [Required]
         public long? Nid { get; set; }
 
 
+        [Required]
         [IsSelect]
         [GridColumn("Gender")]
         public int? Gender { get; set; }

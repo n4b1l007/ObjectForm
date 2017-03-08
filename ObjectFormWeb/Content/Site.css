@@ -9,8 +9,8 @@
     padding-right: 15px;
 }
 
-/* Override the default bootstrap behavior where horizontal description lists 
-   will truncate terms that are too long to fit in the left column 
+/* Override the default bootstrap behavior where horizontal description lists
+   will truncate terms that are too long to fit in the left column
 */
 .dl-horizontal dt {
     white-space: normal;
@@ -20,5 +20,36 @@
 input,
 select,
 textarea {
-    max-width: 280px;
+    width: 100%;
+}
+
+
+html > body .form-group {
+    min-height: 35px;
+}
+
+html > body ul.has-error, input.has-error, textarea.has-error, select.has-error, div.has-error {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: #cc0000 !important;
+    background-color: #f3d8d8 !important;
+    background-image: url(http://goo.gl/GXVcmC) !important;
+    background-position: 50% 50% !important;
+    background-repeat: repeat !important;
+}
+
+    html > body ul.has-error input {
+        color: #666 !important;
+    }
+
+html > body label.has-error {
+    color: red;
+    font-size: 11px;
+    display: block;
+}
+
+
+.has-error .select2-selection {
+    border: 1px solid #a94442;
+    border-radius: 4px;
 }

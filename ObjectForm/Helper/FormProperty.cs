@@ -60,7 +60,7 @@ namespace ObjectForm.Helper
 
             if (_formOption.IsBootstrap && !isList)
             {
-                propertyHtml.Attributes.Add(HtmlTags.Class, BootstrapClass.FormControl);
+                propertyHtml.Attributes.Add(HtmlTags.Class, genaretClass(isRequired));
             }
 
             if (isRequired)
@@ -287,6 +287,12 @@ namespace ObjectForm.Helper
             panel.InnerHtml = panelHead + panelBody.ToString();
 
             return panel;
+        }
+
+        private string genaretClass(bool isRequired)
+        {
+            return BootstrapClass.FormControl
+                + (isRequired ? " Required" : "");
         }
     }
 }

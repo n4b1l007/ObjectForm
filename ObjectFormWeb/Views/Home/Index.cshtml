@@ -23,41 +23,8 @@
 
 @Html.ObjectForm(typeof(TestModelForm)).Options(o =>
                        o.Action("Action").Class("form-horizontal").ApplyBootstrap().WrapArroundWithDiv("form-group")).AddLabelOptions(l =>
-                       l.AddLabelClass("col-md-4 control-label").AddInLineStyle("color:green")).AddPropertyOptions(p => p.WrapArroundWithDiv("col-md-8"))
+                       l.AddLabelClass("col-md-3").AddInLineStyle("color:green")).AddPropertyOptions(p => p.WrapArroundWithDiv("col-md-9"))
 
-@*<form class="form-horizontal" role="form">
-    <div class="row">
-        <div class="col-sm-6 col-lg-4">
-            <div class="form-group">
-                <label for="inputEmail" class="col-md-4 control-label">Email:</label>
-                <div class="col-md-8">
-                    <input class="form-control" id="inputEmail" placeholder="Email" type="email">
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-4">
-            <div class="form-group">
-                <label for="inputPassword" class="col-md-4 control-label">Password:</label>
-                <div class="col-md-8">
-                    <input class="form-control" id="inputPassword" placeholder="Password" type="password">
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-4">
-            <div class="form-group">
-                <label for="inputLabel3" class="col-md-4 control-label">Label 3:</label>
-                <div class="col-md-8">
-                    <input class="form-control" id="inputLabel3" placeholder="Label 3" type="text">
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-lg-4">
-            <div class="form-group">
-                <label for="inputLabel4" class="col-md-4 control-label">Label 4:</label>
-                <div class="col-md-8">
-                    <input class="form-control" id="inputLabel4" placeholder="Label 4" type="text">
-                </div>
-            </div>
-        </div>
-    </div>
-</form>*@
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
