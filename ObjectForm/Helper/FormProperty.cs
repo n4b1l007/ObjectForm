@@ -31,8 +31,9 @@ namespace ObjectForm.Helper
             return Generator(property, true, true);
         }
 
-        public TagBuilder Generator(PropertyInfo property, bool withLabel, bool withWraperDiv)
+        private TagBuilder Generator(PropertyInfo property, bool withLabel, bool withWraperDiv)
         {
+            var additionalClass = string.Empty;
             TagBuilder propertyHtml;
 
             var customAttributes = property.CustomAttributes.ToList();
@@ -42,12 +43,34 @@ namespace ObjectForm.Helper
 
             var rawValue = _htmlHelper.ViewContext.ViewData.Eval(property.Name);
 
-            var isList = property.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null && property.PropertyType != typeof(string);
+            var isList = property.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null &&
+                            property.PropertyType != typeof(string);
 
             if (isSelect || rawValue is IEnumerable<SelectListItem>)
             {
                 var selectListItem = rawValue as IEnumerable<SelectListItem>;
                 propertyHtml = ForSelect(property, selectListItem);
+                var isSelectAttr = customAttributes.FirstOrDefault(a => a.AttributeType == typeof(IsSelectAttribute));
+                if (isSelectAttr != null)
+                {
+                    var url = isSelectAttr.ConstructorArguments.FirstOrDefault().Value;
+                    if (url == null)
+                    {
+                        additionalClass = "select2";
+                    }
+                    else
+                    {
+                        additionalClass = "select2ajax";
+                        propertyHtml.Attributes.Add("data-ajax--url", url.ToString());
+
+                        var parents = customAttributes.FirstOrDefault(a => a.AttributeType == typeof(ParentPropertyesAttribute))?
+                                                        .ConstructorArguments?.FirstOrDefault().Value;
+                        if (parents != null)
+                        {
+                            propertyHtml.Attributes.Add("data-parents", parents.ToString());
+                        }
+                    }
+                }
             }
             else if (isList)
             {
@@ -60,7 +83,7 @@ namespace ObjectForm.Helper
 
             if (_formOption.IsBootstrap && !isList)
             {
-                propertyHtml.Attributes.Add(HtmlTags.Class, BootstrapClass.FormControl);
+                propertyHtml.Attributes.Add(HtmlTags.Class, GenerateClass(isRequired, additionalClass));
             }
 
             if (isRequired)
@@ -103,7 +126,7 @@ namespace ObjectForm.Helper
         }
 
 
-        public TagBuilder Label(PropertyInfo property)
+        private TagBuilder Label(PropertyInfo property)
         {
             var propertyLabel = new TagBuilder(HtmlTags.Label);
             var labelProperty = property.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DisplayNameAttribute");
@@ -147,7 +170,7 @@ namespace ObjectForm.Helper
             }
         }
 
-        public TagBuilder ForInput(PropertyInfo stringProperty)
+        private TagBuilder ForInput(PropertyInfo stringProperty)
         {
             var dataTypeValue = 0;
             var dataType = stringProperty.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DataTypeAttribute");
@@ -181,7 +204,7 @@ namespace ObjectForm.Helper
             return _propertyHtml;
         }
 
-        public TagBuilder ForSelect(PropertyInfo intProperty, IEnumerable<SelectListItem> selectListItem)
+        private TagBuilder ForSelect(PropertyInfo intProperty, IEnumerable<SelectListItem> selectListItem)
         {
             _propertyHtml = new TagBuilder(HtmlTags.Select);
 
@@ -197,7 +220,7 @@ namespace ObjectForm.Helper
             return _propertyHtml;
         }
 
-        public TagBuilder ForList(PropertyInfo listProperty)
+        private TagBuilder ForList(PropertyInfo listProperty)
         {
             var tableProperty = new TagBuilder(HtmlTags.Table);
 
@@ -287,6 +310,13 @@ namespace ObjectForm.Helper
             panel.InnerHtml = panelHead + panelBody.ToString();
 
             return panel;
+        }
+
+        private static string GenerateClass(bool isRequired, string additionalClass)
+        {
+            return BootstrapClass.FormControl
+                + (isRequired ? " Required" : "")
+                + " " + additionalClass;
         }
     }
 }

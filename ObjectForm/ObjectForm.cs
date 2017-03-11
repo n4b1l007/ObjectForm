@@ -28,7 +28,7 @@ namespace ObjectForm
         {
             _formHtml = new FormHtml(_formOption, _type, _htmlHelper, _labelOption, _propertyOption);
 
-            return _formHtml.RetuenHtml();
+            return _formHtml.ReturnHtml();
         }
 
         public ObjectForm Options(Action<FormOptionBuilder> buildOptions)

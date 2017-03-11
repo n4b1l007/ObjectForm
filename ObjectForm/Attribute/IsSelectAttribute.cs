@@ -1,23 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ObjectForm.Attribute
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class IsSelectAttribute : System.Attribute
     {
-        public bool IsSelect { set; get; }
-
+        private readonly string _url;
         public IsSelectAttribute()
         {
-            IsSelect = true;
         }
-        public IsSelectAttribute(bool isSelect)
+        public IsSelectAttribute(string url)
         {
-            IsSelect = isSelect;
+            _url = url;
         }
+        
     }
 }

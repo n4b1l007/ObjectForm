@@ -23,7 +23,7 @@ namespace ObjectForm.Helper
             _propertyOption = propertyOption;
         }
 
-        public string RetuenHtml()
+        public string ReturnHtml()
         {
             var modelForm = new TagBuilder(HtmlTags.Form);
             var formProperty = new FormProperty(_htmlHelper, _labelOption, _formOption, _propertyOption);

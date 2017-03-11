@@ -10,7 +10,6 @@ namespace ObjectForm.Attribute
         public GridColumnAttribute(string name)
         {
             GridColName = name;
-
         }
     }
 }

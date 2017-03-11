@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="Attribute\FormAttribute.cs" />
     <Compile Include="Attribute\IsSelectAttribute.cs" />
+    <Compile Include="Attribute\ParentPropertyAttribute.cs" />
     <Compile Include="Options\FormOption.cs" />
     <Compile Include="Options\FormOptionBuilder.cs" />
     <Compile Include="Helper\FormHtml.cs" />

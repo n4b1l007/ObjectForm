@@ -13,11 +13,14 @@ namespace ObjectFormWeb.Models
         public int Age { get; set; }
 
         public float Salary { get; set; }
+
         [Required]
         public long? Nid { get; set; }
 
 
-        [IsSelect]
+        [Required]
+        [IsSelect(url:"/test/test")]
+        //[ParentPropertyes("Nid")]
         [GridColumn("Gender")]
         public int? Gender { get; set; }
 
@@ -27,7 +30,6 @@ namespace ObjectFormWeb.Models
 
         public virtual IList<Responcibility> Responcibility { get; set; }
     }
-
 
     public class Responcibility
     {
