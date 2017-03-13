@@ -34,5 +34,7 @@ namespace ObjectFormWeb.Models
     {
         public string JobName { get; set; }
         public int Count { get; set; }
+        [IsSelect]
+        public int Designation { get; set; }
     }
 }

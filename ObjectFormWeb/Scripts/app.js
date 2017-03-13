@@ -149,3 +149,18 @@ var Select2Cascade = (function (window, $) {
     return select2Cascade;
 
 })(window, $);
+
+
+$(function() {
+    $(document).on("click", ".addRow", function () {
+        var clone = $(this).closest("tbody").find("tr:last").clone();
+        clone.find("input").val("").end();
+        clone.find(".select2-container").remove().end();
+        clone.find(".select2-hidden-accessible").removeClass("select2-hidden-accessible");
+        clone.insertAfter(".table tr:last");
+    });
+
+    $('body').on('DOMNodeInserted', 'select', function () {
+        $(this).select2();
+    });
+});
