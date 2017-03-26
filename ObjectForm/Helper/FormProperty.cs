@@ -30,8 +30,8 @@ namespace ObjectForm.Helper
         {
             return Generator(property, true, true);
         }
-
-        private TagBuilder Generator(PropertyInfo property, bool withLabel, bool withWraperDiv)
+        
+        public TagBuilder Generator(PropertyInfo property, bool withLabel, bool withWraperDiv, bool useId = true)
         {
             var additionalClass = string.Empty;
             TagBuilder propertyHtml;
@@ -90,8 +90,11 @@ namespace ObjectForm.Helper
             {
                 propertyHtml.Attributes.Add(HtmlTags.Required, HtmlTags.Required);
             }
+            if (useId)
+            {
+                propertyHtml.Attributes.Add(HtmlTags.Id, property.Name);
+            }
             propertyHtml.Attributes.Add(HtmlTags.Type, HtmlTags.Text);
-            propertyHtml.Attributes.Add(HtmlTags.Id, property.Name);
             propertyHtml.Attributes.Add(HtmlTags.Name, property.Name);
 
             var labelString = string.Empty;
@@ -124,7 +127,6 @@ namespace ObjectForm.Helper
 
             return propertyHtml;
         }
-
 
         private TagBuilder Label(PropertyInfo property)
         {
@@ -261,7 +263,7 @@ namespace ObjectForm.Helper
 
                         var tdProperty = new TagBuilder(HtmlTags.TableTd)
                         {
-                            InnerHtml = Generator(propertyInfo, false, false).ToString()
+                            InnerHtml = Generator(propertyInfo, false, false, false).ToString()
                         };
 
                         bodyTrProperty.InnerHtml += tdProperty;
@@ -273,7 +275,7 @@ namespace ObjectForm.Helper
                     {
                         InnerHtml = "<span class=\"glyphicon glyphicon-plus-sign\"></span>"
                     };
-                    addButton.AddCssClass(BootstrapClass.ButtonDefault);
+                    addButton.AddCssClass(BootstrapClass.ButtonDefault + " addRow");
                     addButton.Attributes.Add(HtmlTags.Type, HtmlTags.Button);
 
                     headTrProperty.InnerHtml += new TagBuilder(HtmlTags.TableTh);
