@@ -25,7 +25,7 @@ namespace ObjectFormWeb.Controllers
                 "sdf"
             };
 
-            return View();
+            return View(new TestModelForm { Name = "Jafrul Sadek"});
         }
 
         public ActionResult About()

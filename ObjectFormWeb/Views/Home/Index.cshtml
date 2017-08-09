@@ -1,8 +1,6 @@
 ﻿@using ObjectForm
 @using ObjectFormWeb.Models
 
-@model TestModelForm
-
 @{
     ViewBag.Title = "Home Page";
 }
@@ -22,9 +20,14 @@
 
 <div style="margin-top: 50px"></div>
 
+@*@Html.ObjectForm().Options(o =>
+                o.Action("Action").Class("form-horizontal").ApplyBootstrap().WrapArroundWithDiv("form-group")).AddLabelOptions(l =>
+                l.AddLabelClass("col-md-3").AddInLineStyle("color:green")).AddPropertyOptions(p => p.WrapArroundWithDiv("col-md-9"))*@
+
+
 @Html.ObjectForm(typeof(TestModelForm)).Options(o =>
-                       o.Action("Action").Class("form-horizontal").ApplyBootstrap().WrapArroundWithDiv("form-group")).AddLabelOptions(l =>
-                       l.AddLabelClass("col-md-3").AddInLineStyle("color:green")).AddPropertyOptions(p => p.WrapArroundWithDiv("col-md-9"))
+            o.Action("Action").Class("form-horizontal").ApplyBootstrap().WrapArroundWithDiv("form-group")).AddLabelOptions(l =>
+            l.AddLabelClass("col-md-3").AddInLineStyle("color:green")).AddPropertyOptions(p => p.WrapArroundWithDiv("col-md-9"));
 
 @section scripts {
     @Scripts.Render("~/bundles/jqueryval")

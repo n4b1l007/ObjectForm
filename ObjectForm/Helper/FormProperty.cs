@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -17,21 +18,23 @@ namespace ObjectForm.Helper
         private readonly LabelOption _labelOption;
         private readonly PropertyOption _propertyOption;
         private TagBuilder _propertyHtml;
+        private object _model;
 
-        public FormProperty(HtmlHelper htmlHelper, LabelOption labelOption, FormOption formOption, PropertyOption propertyOption)
+        public FormProperty(HtmlHelper htmlHelper, object model, LabelOption labelOption, FormOption formOption, PropertyOption propertyOption)
         {
             _htmlHelper = htmlHelper;
             _labelOption = labelOption;
             _formOption = formOption;
             _propertyOption = propertyOption;
+            _model = model;
         }
 
-        public TagBuilder Generator(PropertyInfo property)
+        public TagBuilder Generator(PropertyInfo property, object value)
         {
-            return Generator(property, true, true);
+            return Generator(property, value, true, true);
         }
-        
-        public TagBuilder Generator(PropertyInfo property, bool withLabel, bool withWraperDiv, bool useId = true)
+
+        public TagBuilder Generator(PropertyInfo property, object value, bool withLabel, bool withWraperDiv, bool useId = true)
         {
             var additionalClass = string.Empty;
             TagBuilder propertyHtml;
@@ -64,7 +67,7 @@ namespace ObjectForm.Helper
                         propertyHtml.Attributes.Add("data-ajax--url", url.ToString());
 
                         var parents = customAttributes.FirstOrDefault(a => a.AttributeType == typeof(ParentPropertyesAttribute))?
-                                                        .ConstructorArguments?.FirstOrDefault().Value;
+                                                        .ConstructorArguments.FirstOrDefault().Value;
                         if (parents != null)
                         {
                             propertyHtml.Attributes.Add("data-parents", parents.ToString());
@@ -78,7 +81,8 @@ namespace ObjectForm.Helper
             }
             else
             {
-                propertyHtml = ForInput(property);
+                var stringValue = value as string;
+                propertyHtml = ForInput(property, stringValue);
             }
 
             if (_formOption.IsBootstrap && !isList)
@@ -172,7 +176,7 @@ namespace ObjectForm.Helper
             }
         }
 
-        private TagBuilder ForInput(PropertyInfo stringProperty)
+        private TagBuilder ForInput(PropertyInfo stringProperty, string value)
         {
             var dataTypeValue = 0;
             var dataType = stringProperty.CustomAttributes.FirstOrDefault(f => f.AttributeType.Name == "DataTypeAttribute");
@@ -186,6 +190,7 @@ namespace ObjectForm.Helper
             if (dataTypeValue == 0)
             {
                 _propertyHtml = new TagBuilder(HtmlTags.Input);
+                _propertyHtml.Attributes.Add("value", value);
             }
             else
             {

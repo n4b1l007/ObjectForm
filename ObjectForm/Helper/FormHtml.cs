@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Web.Mvc;
 using ObjectForm.Options;
@@ -14,8 +15,16 @@ namespace ObjectForm.Helper
         private readonly PropertyOption _propertyOption;
         private readonly Type _type;
 
-        public FormHtml(FormOption formOption, Type type, HtmlHelper htmlHelper, LabelOption labelOption, PropertyOption propertyOption)
+        private readonly object _model;
+
+        public FormHtml(object model,
+                        FormOption formOption,
+                        Type type,
+                        HtmlHelper htmlHelper,
+                        LabelOption labelOption,
+                        PropertyOption propertyOption)
         {
+            _model = model;
             _formOption = formOption;
             _type = type;
             _htmlHelper = htmlHelper;
@@ -26,12 +35,14 @@ namespace ObjectForm.Helper
         public string ReturnHtml()
         {
             var modelForm = new TagBuilder(HtmlTags.Form);
-            var formProperty = new FormProperty(_htmlHelper, _labelOption, _formOption, _propertyOption);
+            var formProperty = new FormProperty(_htmlHelper, _model, _labelOption, _formOption, _propertyOption);
 
             if (_formOption.Action != string.Empty)
                 modelForm.Attributes.Add(HtmlTags.Action, _formOption.Action);
+
             if (_formOption.AttributeId != string.Empty)
                 modelForm.Attributes.Add(HtmlTags.Id, _formOption.AttributeId);
+
             if (_formOption.AttributeClass != string.Empty)
                 modelForm.Attributes.Add(HtmlTags.Class, _formOption.AttributeClass);
 
@@ -45,27 +56,37 @@ namespace ObjectForm.Helper
             var table = string.Empty;
             foreach (var property in properties)
             {
-                if (property.PropertyType.GetInterface(typeof(IEnumerable<>).FullName) != null && property.PropertyType != typeof(string))
+                var propValue = property.GetValue(_model, null);
+                //if (property.PropertyType.IsPrimitive ||
+                //    property.PropertyType == typeof (string) ||
+                //    property.PropertyType == typeof(int) ||
+                //    property.PropertyType == typeof(DateTime))
+                //{
+                //    modelFormInnerHtml.InnerHtml += formProperty.Generator(property);
+                //}
+                //else
+                if (typeof (IEnumerable).IsAssignableFrom(property.PropertyType))
                 {
-                    table += formProperty.Generator(property);
+                    table += formProperty.Generator(property, propValue);
                 }
                 else
                 {
-                    modelFormInnerHtml.InnerHtml += formProperty.Generator(property);
+                    modelFormInnerHtml.InnerHtml += formProperty.Generator(property, propValue);
                 }
             }
 
             modelForm.InnerHtml += modelFormInnerHtml + table;
             #endregion
 
-            var t = new TagBuilder(HtmlTags.Button);
-            t.Attributes.Add(HtmlTags.Type, "submit");
-            t.SetInnerText("Create");
+            var submitButton = new TagBuilder(HtmlTags.Button);
+            submitButton.AddCssClass("btn btn-success");
+            submitButton.Attributes.Add(HtmlTags.Type, "submit");
+            submitButton.SetInnerText("Create");
 
 
-            const string button = "<br /><input type = \"submit\" value=\"Create\" class=\"btn btn-success\" />";
+            //const string button = "<br /><input type = \"submit\" value=\"Create\" class=\"btn btn-success\" />";
 
-            modelForm.InnerHtml += button;
+            modelForm.InnerHtml += submitButton;
             return modelForm.ToString();
         }
     }

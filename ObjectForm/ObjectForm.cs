@@ -14,9 +14,11 @@ namespace ObjectForm
         private readonly FormOption _formOption;
         private readonly LabelOption _labelOption;
         private readonly PropertyOption _propertyOption;
+        private object _model;
 
-        public ObjectForm(HtmlHelper htmlHelper, Type type)
+        public ObjectForm(HtmlHelper htmlHelper, Type type, object model)
         {
+            _model = model;
             _htmlHelper = htmlHelper;
             _type = type;
             _propertyOption = new PropertyOption();
@@ -26,7 +28,7 @@ namespace ObjectForm
 
         public virtual string ToHtmlString()
         {
-            _formHtml = new FormHtml(_formOption, _type, _htmlHelper, _labelOption, _propertyOption);
+            _formHtml = new FormHtml(_model, _formOption, _type, _htmlHelper, _labelOption, _propertyOption);
 
             return _formHtml.ReturnHtml();
         }
