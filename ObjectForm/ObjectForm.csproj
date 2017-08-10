@@ -81,7 +81,7 @@
     <Compile Include="Options\FormOptionBuilder.cs" />
     <Compile Include="Helper\FormHtml.cs" />
     <Compile Include="Helper\FormProperty.cs" />
-    <Compile Include="ObjectForm.cs" />
+    <Compile Include="FormBuilder.cs" />
     <Compile Include="ObjectFormExtensions.cs" />
     <Compile Include="Options\LabelOption.cs" />
     <Compile Include="Options\LabelOptionBuilder.cs" />

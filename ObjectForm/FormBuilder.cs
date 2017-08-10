@@ -6,17 +6,38 @@ using ObjectForm.Options;
 
 namespace ObjectForm
 {
-    public class ObjectForm : IHtmlString
+    public class FormBuilder : IHtmlString
     {
         private FormHtml _formHtml;
         private readonly Type _type;
+        private readonly object _model;
         private readonly HtmlHelper _htmlHelper;
         private readonly FormOption _formOption;
         private readonly LabelOption _labelOption;
         private readonly PropertyOption _propertyOption;
-        private object _model;
 
-        public ObjectForm(HtmlHelper htmlHelper, Type type, object model)
+        #region lazy singleton
+        private static FormBuilder _instance;
+        private static readonly object Locker = new object();
+
+        public static FormBuilder GetInstance(HtmlHelper htmlHelper, Type type, object model)
+        {
+            if (_instance == null)
+            {
+                lock (Locker)
+                {
+                    if (_instance == null) // Double-checked locking (works in C#!).
+                    {
+                        _instance = new FormBuilder(htmlHelper, type, model);
+                    }
+                }
+            }
+
+            return _instance;
+        }
+        #endregion
+
+        public FormBuilder(HtmlHelper htmlHelper, Type type, object model)
         {
             _model = model;
             _htmlHelper = htmlHelper;
@@ -33,20 +54,28 @@ namespace ObjectForm
             return _formHtml.ReturnHtml();
         }
 
-        public ObjectForm Options(Action<FormOptionBuilder> buildOptions)
+        public FormBuilder Options(Action<FormOptionBuilder> buildOptions)
         {
             buildOptions(new FormOptionBuilder(_formOption));
             return this;
         }
-        public ObjectForm AddLabelOptions(Action<LabelOptionBuilder> buildOptions)
+        public FormBuilder AddLabelOptions(Action<LabelOptionBuilder> buildOptions)
         {
             buildOptions(new LabelOptionBuilder(_labelOption));
             return this;
         }
-        public ObjectForm AddPropertyOptions(Action<PropertyOptionBuilder> buildOptions)
+        public FormBuilder AddPropertyOptions(Action<PropertyOptionBuilder> buildOptions)
         {
             buildOptions(new PropertyOptionBuilder(_propertyOption));
             return this;
         }
+
+
+
+
+
+
+
+        
     }
 }
